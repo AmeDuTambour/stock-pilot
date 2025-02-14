@@ -12,7 +12,7 @@ import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {ThemedInput} from '@/src/shared/components/themed-input/ThemedInput';
 import {ThemedButton} from '@/src/shared/components/themed-button/ThemedButton';
-import styleSheet from './LoginScreen.styles';
+
 import useStyle from '@/src/shared/hooks/use-style';
 import ScreenContainer from '@/src/shared/components/screen-container/ScreenContainer';
 import {
@@ -22,9 +22,10 @@ import {
   CardHeader,
 } from '@/src/shared/components/card/Card';
 import useLogin from '@/src/hooks/useLogin';
+import styleSheet from './LoginScreen.styles';
 
-const logoLight = require('../../assets/images/logo-no-bg-light.png');
-const logoDark = require('../../assets/images/logo-no-bg-dark.png');
+const logoLight = require('../../../assets/images/logo-no-bg-light.png');
+const logoDark = require('../../../assets/images/logo-no-bg-dark.png');
 
 const loginSchema = z.object({
   email: z.string().email({message: 'Invalid email address'}),
@@ -102,7 +103,7 @@ export const LoginScreen = () => {
               )}
             />
             {error && <Text style={styles.errorText}>{error}</Text>}
-            {isPending && <ActivityIndicator size="large" color="#0000ff" />}
+            {isPending && <ActivityIndicator size="large" />}
           </CardContent>
           <CardFooter>
             <ThemedButton

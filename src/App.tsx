@@ -14,29 +14,23 @@ import {useTheme} from './shared/hooks/use-theme';
 
 import {useAuth} from './shared/hooks/use-auth';
 import {AuthProvider} from './shared/context/authContext';
-import {LoginScreen} from './auth/screens/LogingScreen';
-
-const logoLight = require('./assets/images/logo-no-bg-light.png');
-const logoDark = require('./assets/images/logo-no-bg-dark.png');
+import {LoginScreen} from './features/auth/screens/LoginScreen';
+import QRCodeScannerScreen from './features/qr-code-scanner/screens/QRCodeScanner';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import InventoryScreen from './features/inventory/screens/InventoryScreen';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 type AuthStackParamList = {
   Login: undefined;
 };
 
 type AppStackParamList = {
-  Home: undefined;
+  Inventory: undefined;
+  QRCodeScanner: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
-const AppStack = createNativeStackNavigator<AppStackParamList>();
-
-function HomeScreen() {
-  return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text>Welcome to Home Screen!</Text>
-    </View>
-  );
-}
+const Tab = createBottomTabNavigator<AppStackParamList>();
 
 function AuthNavigator() {
   const theme = useTheme();
@@ -53,23 +47,42 @@ function AuthNavigator() {
 
 function AppNavigator() {
   const theme = useTheme();
-  const colorScheme = useColorScheme();
+
+  const icons = {
+    Inventory: require('./assets/icons/inventory.png'),
+    QRCodeScanner: require('./assets/icons/qr-code.png'),
+  };
 
   return (
-    <AppStack.Navigator
-      screenOptions={{
+    <Tab.Navigator
+      initialRouteName="QRCodeScanner"
+      screenOptions={({route}) => ({
         headerStyle: {backgroundColor: theme.background},
         headerTintColor: theme.primary,
-        headerTitle: () => (
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: 'gray',
+        tabBarStyle: {
+          backgroundColor: theme.background,
+          height: 80,
+          paddingTop: 15,
+        },
+        tabBarShowLabel: false,
+        tabBarIconStyle: {alignSelf: 'center'},
+        tabBarIcon: ({color, size}) => (
           <Image
-            source={colorScheme === 'light' ? logoLight : logoDark}
-            style={{width: 100, height: 40, resizeMode: 'contain'}}
+            source={icons[route.name]}
+            style={{
+              width: size,
+              height: size,
+              tintColor: color,
+              resizeMode: 'contain',
+            }}
           />
         ),
-        contentStyle: {backgroundColor: theme.background},
-      }}>
-      <AppStack.Screen name="Home" component={HomeScreen} />
-    </AppStack.Navigator>
+      })}>
+      <Tab.Screen name="Inventory" component={InventoryScreen} />
+      <Tab.Screen name="QRCodeScanner" component={QRCodeScannerScreen} />
+    </Tab.Navigator>
   );
 }
 
@@ -103,8 +116,10 @@ function MainApp() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <MainApp />
-    </AuthProvider>
+    <GestureHandlerRootView style={{flex: 1, backgroundColor: 'gray'}}>
+      <AuthProvider>
+        <MainApp />
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -10,7 +10,10 @@
     "test": "jest"
   },
   "dependencies": {
+    "@gorhom/bottom-sheet": "^5.1.1",
     "@hookform/resolvers": "^4.0.0",
+    "@react-native-community/cameraroll": "^4.1.2",
+    "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/elements": "^2.2.5",
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/native-stack": "^7.2.0",
@@ -18,12 +21,18 @@
     "react": "18.3.1",
     "react-hook-form": "^7.54.2",
     "react-native": "0.77.0",
+    "react-native-camera": "^4.2.1",
     "react-native-css-interop": "^0.1.22",
     "react-native-encrypted-storage": "^4.0.3",
+    "react-native-gesture-handler": "^2.23.1",
+    "react-native-modal": "^13.0.1",
+    "react-native-permissions": "^5.2.5",
     "react-native-reanimated": "^3.16.7",
     "react-native-safe-area-context": "^5.2.0",
     "react-native-screens": "^4.6.0",
     "react-native-svg": "^15.2.0",
+    "react-native-vector-icons": "^10.2.0",
+    "react-native-vision-camera": "^4.6.3",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -50,5 +59,10 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "react-native-permissions": {
+    "ios": [
+      "Camera"
+    ]
   }
 }
