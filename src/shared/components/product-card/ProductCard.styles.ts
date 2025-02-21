@@ -13,6 +13,11 @@ const styleSheet = (theme: ThemeColors) =>
       borderWidth: 1,
       borderColor: theme.border,
       alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: {width: 0, height: 2},
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
     },
     image: {
       width: 80,
@@ -44,16 +49,14 @@ const styleSheet = (theme: ThemeColors) =>
       fontWeight: 'bold',
     },
     actionsContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
       marginTop: Spaces.sm,
     },
     actionButton: {
-      flex: 1,
-      paddingVertical: 8,
+      width: '100%',
+      paddingVertical: 16,
       borderRadius: 6,
       alignItems: 'center',
-      marginHorizontal: Spaces.xs,
+      marginBottom: Spaces.xs,
     },
     blockButton: {
       backgroundColor: BaseColors.orange,

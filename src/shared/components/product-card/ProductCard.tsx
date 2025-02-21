@@ -21,8 +21,6 @@ const ProductCard = ({product, onBlock, onSell}: ProductCardProps) => {
     );
   }
 
-  const isBlocked = product.blockedQuantity && product.blockedQuantity > 0;
-
   const handleSellPress = () => {
     Alert.alert(
       'Confirmer la vente',
@@ -55,21 +53,18 @@ const ProductCard = ({product, onBlock, onSell}: ProductCardProps) => {
           <Text style={styles.specsValue}>{product.blockedQuantity ?? 0}</Text>
         </View>
 
-        {/* Actions */}
         <View style={styles.actionsContainer}>
           <TouchableOpacity
             onPress={onBlock}
             style={[styles.actionButton, styles.blockButton]}
             disabled={product.stock === 0}>
-            <Text style={styles.actionText}>
-              {isBlocked ? 'Débloquer' : 'Bloquer'}
-            </Text>
+            <Text style={styles.actionText}>Réserver une unité</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSellPress}
             style={[styles.actionButton, styles.sellButton]}
             disabled={product.stock === 0}>
-            <Text style={styles.actionText}>Vendu</Text>
+            <Text style={styles.actionText}>Déclarer une unité vendue</Text>
           </TouchableOpacity>
         </View>
       </View>

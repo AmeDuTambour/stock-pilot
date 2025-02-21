@@ -4,6 +4,11 @@ import {ThemeColors} from '@/src/shared/types/theme.types';
 
 const styleSheet = (theme: ThemeColors) =>
   StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+      paddingHorizontal: Spaces.md,
+    },
     headerContainer: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -25,6 +30,9 @@ const styleSheet = (theme: ThemeColors) =>
       height: 24,
       resizeMode: 'contain',
       tintColor: theme.primary,
+    },
+    cardContainer: {
+      marginVertical: Spaces.xs,
     },
   });
 

@@ -1,11 +1,20 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {SearchHeader} from '@/src/shared/components/search-header/SearchHeader';
-import {Text, View, TouchableOpacity, Image, FlatList} from 'react-native';
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
+
 import {useNavigation} from '@react-navigation/native';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
 import useStyle from '@/src/shared/hooks/use-style';
 import styleSheet from './InventoryScreen.styles';
 import {useProducts} from '@/src/hooks/useProducts';
+import ProductCard from '@/src/shared/components/product-card/ProductCard';
 
 type RootDrawerParamList = {
   Main: undefined;
@@ -17,14 +26,22 @@ const InventoryScreen = () => {
   const styles = useStyle(styleSheet);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [products, setProducts] = useState([]);
 
   const {data, isLoading, error} = useProducts({
     blocked: false,
     category: '',
-    page: 1,
+    page,
     limit: 10,
     query: searchQuery,
   });
+
+  useEffect(() => {
+    if (data?.data && Array.isArray(data.data)) {
+      setProducts(prev => (page === 1 ? data.data : [...prev, ...data.data]));
+    }
+  }, [data, page]);
 
   const HeaderComponent = useCallback(
     () => (
@@ -47,20 +64,34 @@ const InventoryScreen = () => {
   );
 
   useEffect(() => {
-    navigation.setOptions({
-      headerTitle: HeaderComponent,
-    });
+    navigation.setOptions({headerTitle: HeaderComponent});
   }, [navigation, HeaderComponent]);
 
+  // Fonction de chargement de la page suivante
+  const loadMore = () => {
+    if (!isLoading) {
+      setPage(prev => prev + 1);
+    }
+  };
+
   return (
-    <View style={{flex: 1, padding: 16}}>
-      {isLoading && <Text>Chargement...</Text>}
+    <View style={styles.container}>
+      {isLoading && page === 1 && <Text>Chargement...</Text>}
       {error && <Text>Erreur de chargement</Text>}
 
       <FlatList
-        data={data}
+        data={products}
         keyExtractor={item => item.id.toString()}
-        renderItem={({item}) => <Text>{item.name}</Text>}
+        renderItem={({item}) => (
+          <View style={styles.cardContainer}>
+            <ProductCard product={item} />
+          </View>
+        )}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          isLoading && page > 1 ? <ActivityIndicator size="large" /> : null
+        }
       />
     </View>
   );
