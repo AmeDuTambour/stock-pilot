@@ -14,10 +14,6 @@ const useLogin = () => {
     setError(null);
     try {
       const result = await login(email, password);
-      console.log('===============response from useLogin=====================');
-      console.log(result);
-      console.log('====================================');
-
       if (result.token) {
         await storeToken(result.token);
         authenticateUser(result.token);

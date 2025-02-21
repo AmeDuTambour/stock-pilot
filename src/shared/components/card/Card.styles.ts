@@ -17,8 +17,6 @@ const styleSheet = (theme: ThemeColors) =>
       elevation: 2,
     },
     header: {
-      borderBottomWidth: 1,
-      borderBottomColor: '#ddd',
       paddingBottom: 8,
       marginBottom: 8,
       display: 'flex',

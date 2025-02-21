@@ -14,10 +14,11 @@ import BottomSheetActions from '@/src/shared/components/bottom-sheet-actions/Bot
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {BottomSheetMethods} from '@gorhom/bottom-sheet/lib/typescript/types';
 
-const QRCodeScannerScreen = ({navigation}: {navigation: any}) => {
+const QRCodeScannerScreen = () => {
   const styles = useStyle(styleSheet);
   const [torch, setTorch] = useState<'on' | 'off'>('off');
   const [scannedData, setScannedData] = useState('');
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const bottomSheetRef = useRef<BottomSheetMethods>(null);
 
   const {hasPermission, requestPermission} = useCameraPermission();
@@ -43,6 +44,7 @@ const QRCodeScannerScreen = ({navigation}: {navigation: any}) => {
     }
 
     checkCameraPermission();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const device = useCameraDevice('back');
@@ -57,6 +59,10 @@ const QRCodeScannerScreen = ({navigation}: {navigation: any}) => {
       }
     },
   });
+
+  const handleBottomSheetChange = useCallback((index: number) => {
+    setIsBottomSheetOpen(index >= 0);
+  }, []);
 
   const toggleTorch = useCallback(() => {
     setTorch(prev => (prev === 'off' ? 'on' : 'off'));
@@ -86,14 +92,18 @@ const QRCodeScannerScreen = ({navigation}: {navigation: any}) => {
         <RNVCamera
           device={device}
           style={styles.camera}
-          isActive={true}
+          isActive={!isBottomSheetOpen}
           torch={torch}
           codeScanner={codeScanner}
         />
         <Text onPress={toggleTorch} style={styles.flashToggle}>
           {torch === 'off' ? 'Turn On Flash' : 'Turn Off Flash'}
         </Text>
-        <BottomSheetActions ref={bottomSheetRef} data={scannedData} />
+        <BottomSheetActions
+          ref={bottomSheetRef}
+          codeIdentifier={scannedData}
+          onChange={handleBottomSheetChange}
+        />
       </View>
     </GestureHandlerRootView>
   );

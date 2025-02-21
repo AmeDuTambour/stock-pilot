@@ -1,53 +1,56 @@
-import React, {useMemo, forwardRef, useImperativeHandle, useRef} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {
+  useMemo,
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  useEffect,
+} from 'react';
+import {ActivityIndicator} from 'react-native';
 import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
+import useGetProduct from '@/src/hooks/useGetProduct';
+import ProductCard from '../product-card/ProductCard';
+import styleSheet from './BottomSheetActions.styles';
+import useStyle from '../../hooks/use-style';
 
 type Props = {
-  data: string | null;
+  codeIdentifier: string | null;
+  onChange?: (index: number) => void;
 };
 
-const BottomSheetActions = forwardRef<BottomSheet, Props>(({data}, ref) => {
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['25%', '50%'], []);
+const BottomSheetActions = forwardRef<BottomSheet, Props>(
+  ({codeIdentifier, onChange}, ref) => {
+    const bottomSheetRef = useRef<BottomSheet>(null);
+    const snapPoints = useMemo(() => ['35%'], []);
+    const styles = useStyle(styleSheet);
 
-  useImperativeHandle(ref, () => bottomSheetRef.current as BottomSheet);
+    const {data: product, isLoading} = useGetProduct(codeIdentifier ?? '');
 
-  return (
-    <BottomSheet ref={bottomSheetRef} index={-1} snapPoints={snapPoints}>
-      <BottomSheetView style={styles.contentContainer}>
-        <Text style={styles.title}>Produit scanné</Text>
-        <Text>{data ?? 'Aucune donnée'}</Text>
-        <TouchableOpacity
-          onPress={() => bottomSheetRef.current?.close()}
-          style={styles.button}>
-          <Text style={styles.buttonText}>Fermer</Text>
-        </TouchableOpacity>
-      </BottomSheetView>
-    </BottomSheet>
-  );
-});
+    useImperativeHandle(ref, () => bottomSheetRef.current as BottomSheet);
+
+    useEffect(() => {
+      if (bottomSheetRef.current) {
+        bottomSheetRef.current.expand();
+      }
+    }, [codeIdentifier]);
+
+    return (
+      <BottomSheet
+        handleStyle={styles.handleStyle}
+        ref={bottomSheetRef}
+        index={0}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        onChange={onChange}>
+        <BottomSheetView style={styles.contentContainer}>
+          {isLoading ? (
+            <ActivityIndicator size="large" />
+          ) : (
+            <ProductCard product={product ?? undefined} />
+          )}
+        </BottomSheetView>
+      </BottomSheet>
+    );
+  },
+);
 
 export default BottomSheetActions;
-
-const styles = StyleSheet.create({
-  contentContainer: {
-    flex: 1,
-    padding: 20,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  button: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: 'blue',
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});

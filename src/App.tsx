@@ -1,24 +1,27 @@
 import React from 'react';
+import {StatusBar, View, ActivityIndicator, Image} from 'react-native';
 import {
-  StatusBar,
-  Image,
-  useColorScheme,
-  View,
-  Text,
-  ActivityIndicator,
-} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
+  NavigationContainer,
+  createNavigationContainerRef,
+} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import {MenuProvider} from 'react-native-popup-menu';
 
 import {useTheme} from './shared/hooks/use-theme';
-
-import {useAuth} from './shared/hooks/use-auth';
 import {AuthProvider} from './shared/context/authContext';
 import {LoginScreen} from './features/auth/screens/LoginScreen';
 import QRCodeScannerScreen from './features/qr-code-scanner/screens/QRCodeScanner';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import InventoryScreen from './features/inventory/screens/InventoryScreen';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
+
+import {Spaces} from './shared/styles/theme';
+import {FilterDrawer} from './shared/components/filter-drawer/FilterDrawer';
+import {useAuth} from './shared/hooks/use-auth';
+
+export const navigationRef = createNavigationContainerRef();
 
 type AuthStackParamList = {
   Login: undefined;
@@ -29,8 +32,16 @@ type AppStackParamList = {
   QRCodeScanner: undefined;
 };
 
+type RootDrawerParamList = {
+  Main: undefined;
+  Filters: undefined;
+};
+
+const queryClient = new QueryClient();
+
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const Tab = createBottomTabNavigator<AppStackParamList>();
+const Drawer = createDrawerNavigator<RootDrawerParamList>();
 
 function AuthNavigator() {
   const theme = useTheme();
@@ -45,7 +56,7 @@ function AuthNavigator() {
   );
 }
 
-function AppNavigator() {
+function BottomTabNavigator() {
   const theme = useTheme();
 
   const icons = {
@@ -57,7 +68,10 @@ function AppNavigator() {
     <Tab.Navigator
       initialRouteName="QRCodeScanner"
       screenOptions={({route}) => ({
-        headerStyle: {backgroundColor: theme.background},
+        headerStyle: {
+          backgroundColor: theme.background,
+          height: Spaces['4xl'] * 2,
+        },
         headerTintColor: theme.primary,
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: 'gray',
@@ -67,7 +81,6 @@ function AppNavigator() {
           paddingTop: 15,
         },
         tabBarShowLabel: false,
-        tabBarIconStyle: {alignSelf: 'center'},
         tabBarIcon: ({color, size}) => (
           <Image
             source={icons[route.name]}
@@ -86,11 +99,26 @@ function AppNavigator() {
   );
 }
 
+function AppNavigator() {
+  return (
+    <Drawer.Navigator
+      drawerContent={props => <FilterDrawer {...props} />}
+      screenOptions={{
+        drawerPosition: 'right',
+        drawerType: 'slide',
+        headerShown: false,
+        drawerStyle: {width: '75%'},
+      }}>
+      <Drawer.Screen name="Main" component={BottomTabNavigator} />
+    </Drawer.Navigator>
+  );
+}
+
 function MainApp() {
-  const {isAuthenticated} = useAuth();
+  const {isAuthenticated, isLoading} = useAuth();
   const theme = useTheme();
 
-  if (isAuthenticated === null) {
+  if (isLoading) {
     return (
       <View
         style={{
@@ -107,7 +135,7 @@ function MainApp() {
   return (
     <>
       <StatusBar backgroundColor={theme.primary} />
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         {isAuthenticated ? <AppNavigator /> : <AuthNavigator />}
       </NavigationContainer>
     </>
@@ -117,9 +145,13 @@ function MainApp() {
 export default function App() {
   return (
     <GestureHandlerRootView style={{flex: 1, backgroundColor: 'gray'}}>
-      <AuthProvider>
-        <MainApp />
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <MenuProvider>
+            <MainApp />
+          </MenuProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 }
