@@ -1,17 +1,30 @@
 import React from 'react';
-import {Image, Text, View, TouchableOpacity, Alert} from 'react-native';
+import {
+  Image,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import {Product} from '../../types/product.types';
 import styleSheet from './ProductCard.styles';
 import useStyle from '../../hooks/use-style';
+import {useBlockProductUnit} from '@/src/hooks/useBlockProductUnit';
+import {useDeclareSale} from '@/src/hooks/useDeclareSale';
+import {useReleaseProductUnit} from '@/src/hooks/useReleaseProductUnit';
 
 type ProductCardProps = {
   product?: Product | null;
-  onBlock?: () => void;
-  onSell?: () => void;
 };
 
-const ProductCard = ({product, onBlock, onSell}: ProductCardProps) => {
+const ProductCard = ({product}: ProductCardProps) => {
   const styles = useStyle(styleSheet);
+
+  const {mutate: blockUnit, isPending: isBlocking} = useBlockProductUnit();
+  const {mutate: releaseUnit, isPending: isReleasing} = useReleaseProductUnit();
+  const {mutate: declareSaleMutation, isPending: isDeclaring} =
+    useDeclareSale();
 
   if (!product) {
     return (
@@ -28,10 +41,37 @@ const ProductCard = ({product, onBlock, onSell}: ProductCardProps) => {
         product.name || 'ce produit'
       }" comme vendu ?`,
       [
+        {
+          text: 'Vendre une unité réservée',
+          onPress: () => {
+            declareSaleMutation({
+              identifier: product.id,
+              quantity: 1,
+              useReservation: true,
+            });
+          },
+        },
+        {
+          text: 'Vendre une unité en stock',
+          onPress: () => {
+            declareSaleMutation({
+              identifier: product.id,
+              quantity: 1,
+              useReservation: false,
+            });
+          },
+        },
         {text: 'Annuler', style: 'cancel'},
-        {text: 'Confirmer', onPress: () => onSell && onSell()},
       ],
     );
+  };
+
+  const handleDecrement = () => {
+    releaseUnit({identifier: product.id, quantity: 1});
+  };
+
+  const handleIncrement = () => {
+    blockUnit({identifier: product.id, quantity: 1});
   };
 
   return (
@@ -49,24 +89,44 @@ const ProductCard = ({product, onBlock, onSell}: ProductCardProps) => {
           <Text style={styles.specsValue}>{product.stock ?? 'Inconnu'}</Text>
         </View>
         <View style={styles.specsRow}>
-          <Text style={styles.specsKey}>Bloqué :</Text>
+          <Text style={styles.specsKey}>Réservé :</Text>
           <Text style={styles.specsValue}>{product.blockedQuantity ?? 0}</Text>
         </View>
 
-        <View style={styles.actionsContainer}>
+        <View style={styles.reserveContainer}>
           <TouchableOpacity
-            onPress={onBlock}
-            style={[styles.actionButton, styles.blockButton]}
-            disabled={product.stock === 0}>
-            <Text style={styles.actionText}>Réserver une unité</Text>
+            onPress={handleDecrement}
+            style={[styles.reserveButton, styles.decrementButton]}
+            disabled={isReleasing || (product.blockedQuantity ?? 0) <= 0}>
+            {isReleasing ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.reserveText}>-</Text>
+            )}
           </TouchableOpacity>
+          <Text style={styles.reserveTitle}>Reserver Unité(s)</Text>
           <TouchableOpacity
-            onPress={handleSellPress}
-            style={[styles.actionButton, styles.sellButton]}
-            disabled={product.stock === 0}>
-            <Text style={styles.actionText}>Déclarer une unité vendue</Text>
+            onPress={handleIncrement}
+            style={[styles.reserveButton, styles.incrementButton]}
+            disabled={isBlocking || (product.stock ?? 0) <= 0}>
+            {isBlocking ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.reserveText}>+</Text>
+            )}
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity
+          onPress={handleSellPress}
+          style={[styles.actionButton, styles.sellButton]}
+          disabled={isDeclaring || (product.stock ?? 0) === 0}>
+          {isDeclaring ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.actionText}>Declarer une vente</Text>
+          )}
+        </TouchableOpacity>
       </View>
     </View>
   );

@@ -1,6 +1,6 @@
 import {ThemeColors} from '@/src/shared/types/theme.types';
 import {StyleSheet} from 'react-native';
-import {BaseColors, Spaces} from '../../styles/theme';
+import {BaseColors, Radius, Spaces} from '../../styles/theme';
 
 const styleSheet = (theme: ThemeColors) =>
   StyleSheet.create({
@@ -67,6 +67,39 @@ const styleSheet = (theme: ThemeColors) =>
     actionText: {
       color: BaseColors.white,
       fontWeight: 'bold',
+    },
+
+    reserveContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      width: '100%',
+      marginBottom: Spaces.xs,
+    },
+    reserveButton: {
+      width: 40,
+      height: 40,
+      borderRadius: Radius.xs,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: BaseColors.orange,
+    },
+    reserveText: {
+      color: BaseColors.white,
+      fontSize: 20,
+      fontWeight: 'bold',
+    },
+    reserveTitle: {
+      flex: 1,
+      textAlign: 'center',
+      color: theme.primary,
+      fontWeight: 'bold',
+    },
+    decrementButton: {
+      marginRight: Spaces.xs,
+    },
+    incrementButton: {
+      marginLeft: Spaces.xs,
     },
   });
 

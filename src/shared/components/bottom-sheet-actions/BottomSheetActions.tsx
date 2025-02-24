@@ -20,7 +20,7 @@ type Props = {
 const BottomSheetActions = forwardRef<BottomSheet, Props>(
   ({codeIdentifier, onChange}, ref) => {
     const bottomSheetRef = useRef<BottomSheet>(null);
-    const snapPoints = useMemo(() => ['35%'], []);
+    const snapPoints = useMemo(() => ['45%'], []);
     const styles = useStyle(styleSheet);
 
     const {data: product, isLoading} = useGetProduct(codeIdentifier ?? '');
@@ -28,7 +28,11 @@ const BottomSheetActions = forwardRef<BottomSheet, Props>(
     useImperativeHandle(ref, () => bottomSheetRef.current as BottomSheet);
 
     useEffect(() => {
-      if (bottomSheetRef.current) {
+      if (
+        codeIdentifier &&
+        codeIdentifier.trim() !== '' &&
+        bottomSheetRef.current
+      ) {
         bottomSheetRef.current.expand();
       }
     }, [codeIdentifier]);
@@ -37,7 +41,7 @@ const BottomSheetActions = forwardRef<BottomSheet, Props>(
       <BottomSheet
         handleStyle={styles.handleStyle}
         ref={bottomSheetRef}
-        index={0}
+        index={-1}
         snapPoints={snapPoints}
         enablePanDownToClose={true}
         onChange={onChange}>
